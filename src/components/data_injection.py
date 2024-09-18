@@ -6,6 +6,9 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 from dataclasses import dataclass
 
+from src.components.data_transformation import DataTransformation
+from src.components.data_transformation import DataTransformationConfig
+
 # Add the root directory of your project to PYTHONPATH
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../')))
 
@@ -17,16 +20,19 @@ class DataIngestionConfig:
 
 class DataIngestion:
     def __init__(self):
-        self.ingestion_config = DataIngestionConfig()  # Corrected typo
+        self.ingestion_config = DataIngestionConfig()
     
-    def initiate_data_ingestion(self):
+    def initiate_data_ingestion(self, data_path=None):
         logging.info('Entered the data ingestion method or component')
         try:
             # Read the data from the file
-            df = pd.read_csv(r'notebook\data\stud.csv')  # Ensure the file path is correct
-            logging.info('Read the dataset as DataFrame')
+            if data_path is None:
+                data_path = r'notebook\data\stud.csv'  # Default path
             
-            os.makedirs(os.path.dirname(self.ingestion_config.train_data_path), exist_ok=True)  # Corrected 'exist_ok'
+            df = pd.read_csv(data_path)  # Ensure the file path is correct
+            logging.info(f'Read the dataset from {data_path} as DataFrame with shape: {df.shape}')
+            
+            os.makedirs(os.path.dirname(self.ingestion_config.train_data_path), exist_ok=True)
 
             df.to_csv(self.ingestion_config.raw_data_path, index=False, header=True)
             
@@ -36,7 +42,7 @@ class DataIngestion:
             train_set.to_csv(self.ingestion_config.train_data_path, index=False, header=True)
             test_set.to_csv(self.ingestion_config.test_data_path, index=False, header=True)
             
-            logging.info('Data ingestion is completed')
+            logging.info(f'Data ingestion completed: Train shape: {train_set.shape}, Test shape: {test_set.shape}')
         
             return (
                 self.ingestion_config.train_data_path,
@@ -47,4 +53,7 @@ class DataIngestion:
 
 if __name__ == '__main__':
     obj = DataIngestion()
-    obj.initiate_data_ingestion()
+    train_data, test_data = obj.initiate_data_ingestion()
+
+    data_transformation = DataTransformation()
+    data_transformation.initiate_data_transformation(train_data, test_data)  # Corrected method name
