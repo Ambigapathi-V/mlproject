@@ -10,16 +10,11 @@ from src.exception import CustomException
 def save_object(file_path, obj):
     try:
         dir_path = os.path.dirname(file_path)
-        
         os.makedirs(dir_path, exist_ok=True)
-        
         with open(file_path, 'wb') as file_obj:
             dill.dump(obj, file_obj)
-                
     except Exception as e:
         raise CustomException(e, sys)
-    
-from sklearn.model_selection import GridSearchCV
 
 def evaluate_models(X_train, y_train, X_test, y_test, models, params):
     model_report = {}
@@ -37,10 +32,15 @@ def evaluate_models(X_train, y_train, X_test, y_test, models, params):
             predicted = best_model.predict(X_test)
             score = r2_score(y_test, predicted)
             model_report[model_name] = score
+            
         except Exception as e:
             raise CustomException(e, sys)
-
+    
     return model_report
 
-
-
+def load_object(file_path):
+    try:
+        with open(file_path, 'rb') as file_obj:
+            return dill.load(file_obj)
+    except Exception as e:
+        raise CustomException(e, sys)
